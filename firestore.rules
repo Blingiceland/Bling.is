@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return request.auth.token.email.matches('.*@bling.is') || 
+             request.auth.token.email in ['jonbs@bling.is', 'admin@bling.is', 'jonb.steinsson@gmail.com'];
+    }
+
+    // --- Venues Collection ---
+    match /venues/{venueId} {
+      // Anyone can read APPROVED venues (Public)
+      // Owners can read their OWN venues (even if pending)
+      // Relaxed for Launch: Signed-in users can see all (for Admin Dash)
+      allow read: if resource.data.status == 'approved' || isSignedIn();
+      
+      // Only the owner OR Admin can create/update
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      
+      // Only Admins can delete (or owner if we want) - restricting to Admin for safety later?
+      // For now, let owners delete.
+      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // --- Profiles (Artists/Promoters) ---
+    match /profiles/{profileId} {
+      allow read: if true; // Profiles are generally public? Or only for logged in users? Let's say public for now.
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+    
+    // --- Mail (For SendGrid Extension) ---
+    match /mail/{mailId} {
+        allow create: if isSignedIn();
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Bookings ---
+    match /bookings/{bookingId} {
+        allow create: if true; // Public guest requests allowed
+        
+        // Allow reading if:
+        // 1. The booking is APPROVED (so calendar can block dates for everyone)
+        // 2. OR You are the booker
+        // 3. OR You are the venue owner
+        allow read: if (resource.data.status == 'approved') || (
+            isSignedIn() && (
+                resource.data.bookerId == request.auth.uid || 
+                resource.data.ownerId == request.auth.uid
+            )
+        );
+
+        allow update: if isSignedIn() && (
+            resource.data.ownerId == request.auth.uid ||
+            resource.data.bookerId == request.auth.uid
+        );
+    }
+  }
+}

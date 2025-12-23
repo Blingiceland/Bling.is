@@ -1,16 +1,17 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// TODO: Replace with Real Keys provided by User
 const firebaseConfig = {
-  apiKey: "AIzaSyDCS6j5km_NyvABIZE17nhUuZqTCpDm1-w",
-  authDomain: "bling-81b07.firebaseapp.com",
-  projectId: "bling-81b07",
-  storageBucket: "bling-81b07.appspot.com",
-  messagingSenderId: "338334468265",
-  appId: "1:338334468265:web:07f67160d17553a60741b8"
+  apiKey: "AIzaSyA6uU13Dre7yVpk68d2Z46fOJxLT8FMdmw",
+  authDomain: "bling-app-e40c6.firebaseapp.com",
+  projectId: "bling-app-e40c6",
+  storageBucket: "bling-app-e40c6.firebasestorage.app",
+  messagingSenderId: "551671994384",
+  appId: "1:551671994384:web:1d6a4abd2d5aa63357d295"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db };
+export const auth = getAuth(app);
+export const db = getFirestore(app);
