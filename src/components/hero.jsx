@@ -36,33 +36,38 @@ export function Hero() {
                     )}
                 </p>
 
-                <div className="glass-card p-4 md:p-8 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md w-full max-w-6xl mx-auto shadow-2xl">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="w-full max-w-5xl mx-auto flex flex-col gap-8 md:gap-10">
 
-                        {/* 1. Register Venue */}
-                        <Link to="/signup?intent=venue" className="group h-full">
-                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl border border-dashed border-[#ffd700]/50 bg-[#ffd700]/5 hover:bg-[#ffd700]/10 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-2 opacity-50"><Sparkles className="w-12 h-12 text-[#ffd700]" /></div>
-                                <div className="relative z-10">
-                                    <div className="font-bold text-xl md:text-2xl mb-1 text-[#ffd700]">
+                    {/* 1. Register Venue - Hero Button - Moved to Top & Enhanced */}
+                    <div className="w-full flex justify-center">
+                        <Link to="/signup?intent=venue" className="group w-full max-w-2xl">
+                            <button className="w-full p-6 md:p-8 rounded-2xl border-2 border-[#ffd700] bg-[#ffd700]/10 hover:bg-[#ffd700]/20 text-white text-center transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] shadow-[0_0_15px_rgba(255,215,0,0.1)] relative overflow-hidden flex flex-col items-center gap-3 md:gap-4 backdrop-blur-sm">
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity"><Sparkles className="w-32 h-32 text-[#ffd700]" /></div>
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-[#ffd700] mb-1" />
+                                    <div className="font-bold text-2xl md:text-4xl text-[#ffd700] mb-1 tracking-wide uppercase">
                                         {language === 'en' ? 'List Your Space' : 'Skráðu Þinn Stað'}
                                     </div>
-                                    <div className="text-sm md:text-base text-gray-400">
+                                    <div className="text-base md:text-lg text-gray-300 font-medium">
                                         {language === 'en' ? 'For Venue Owners' : 'Fyrir Staðarhaldara'}
                                     </div>
                                 </div>
                             </button>
                         </Link>
+                    </div>
+
+                    {/* Secondary Options Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto w-full">
 
                         {/* 2. Private Event */}
                         <Link to="/venues" className="group h-full">
-                            <button className="w-full h-full min-h-[160px] p-6 rounded-xl bg-white/5 hover:bg-white/10 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center border border-white/10 relative overflow-hidden">
-                                <div className="absolute top-2 right-4 text-5xl opacity-20 grayscale group-hover:grayscale-0 transition-all">🥂</div>
+                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl bg-black/40 hover:bg-black/60 border border-white/10 hover:border-white/20 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden backdrop-blur-md">
+                                <div className="absolute top-2 right-4 text-4xl opacity-20 grayscale group-hover:grayscale-0 transition-all">🥂</div>
                                 <div className="relative z-10">
                                     <div className="font-bold text-xl md:text-2xl mb-2 text-white">
                                         {language === 'en' ? 'Private Event' : 'Einkaviðburður'}
                                     </div>
-                                    <div className="text-sm md:text-base text-gray-400 leading-snug">
+                                    <div className="text-sm text-gray-400 leading-snug">
                                         {language === 'en' ? 'Weddings, Birthday, or Corporate Party' : 'Brúðkaup, afmæli eða fyrirtækjapartý'}
                                     </div>
                                 </div>
@@ -71,13 +76,13 @@ export function Hero() {
 
                         {/* 3. Live Gig */}
                         <Link to="/venues?type=Live Venue" className="group h-full">
-                            <button className="w-full h-full min-h-[160px] p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 hover:border-blue-400/50 hover:bg-blue-900/50 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden shadow-lg shadow-blue-900/10">
-                                <div className="absolute top-2 right-4 text-5xl opacity-40 group-hover:scale-110 transition-transform">🎤</div>
+                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 hover:border-blue-400/50 hover:bg-blue-900/50 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden shadow-lg shadow-blue-900/10 backdrop-blur-md">
+                                <div className="absolute top-2 right-4 text-4xl opacity-40 group-hover:scale-110 transition-transform">🎤</div>
                                 <div className="relative z-10">
                                     <div className="font-bold text-xl md:text-2xl mb-2 text-blue-100">
                                         {language === 'en' ? 'Public Gig' : 'Opinber Viðburður'}
                                     </div>
-                                    <div className="text-sm md:text-base text-blue-200/70 leading-snug">
+                                    <div className="text-sm text-blue-200/70 leading-snug">
                                         {language === 'en' ? 'Concerts, stand-up or other entertainment' : 'Tónleikar, uppistand eða annað skemmtanahald'}
                                     </div>
                                 </div>
