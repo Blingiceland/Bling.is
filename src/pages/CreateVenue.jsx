@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { db } from '../firebase';
 import { collection, addDoc, updateDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from "../context/LanguageContext";
 import VenuePage from '../components/VenuePage';
-import { Trash2, Plus, Upload, X, Check, XCircle, MapPin, Loader2, ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
+import { Trash2, Plus, Upload, X, Check, XCircle, MapPin, Loader2, ArrowLeft, ArrowRight, ExternalLink, Ticket, PartyPopper, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { ICELAND_REGIONS } from '../constants/locations';
 import { toast } from 'sonner';
 
@@ -64,7 +65,7 @@ const DynamicListInput = ({ items = [], onAdd, onRemove, placeholder, label }) =
     );
 };
 
-const VenueTypeCard = ({ label, desc, image, selected, onClick }) => (
+const VenueTypeCard = ({ label, desc, icon: Icon, selected, onClick }) => (
     <div
         onClick={onClick}
         className={`relative group cursor-pointer p-8 rounded-2xl border transition-all duration-300 overflow-hidden h-full flex flex-col items-center justify-center ${selected
@@ -77,11 +78,7 @@ const VenueTypeCard = ({ label, desc, image, selected, onClick }) => (
         <div className="relative z-10 flex flex-col items-center text-center">
             <div className={`relative mb-6 transform transition-transform duration-300 group-hover:scale-110 ${selected ? 'scale-110' : ''}`}>
                 <div className={`absolute inset-0 bg-[#ffd700] rounded-full blur-xl opacity-20 transition-opacity duration-300 ${selected ? 'opacity-40' : 'group-hover:opacity-30'}`}></div>
-                <img
-                    src={image}
-                    alt={label}
-                    className="relative w-32 h-32 object-contain drop-shadow-2xl"
-                />
+                <Icon className={`relative w-24 h-24 drop-shadow-2xl ${selected ? 'text-[#ffd700]' : 'text-gray-200'}`} strokeWidth={1} />
             </div>
             <span className={`text-xl font-bold mb-2 transition-colors ${selected ? 'text-[#ffd700]' : 'text-white'}`}>{label}</span>
             <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{desc}</span>
@@ -109,21 +106,21 @@ const Step1_Type = ({ formData, updateForm }) => {
                 <VenueTypeCard
                     label={language === 'en' ? "Public Gigs" : "Opinberir Viðburðir"}
                     desc={language === 'en' ? "Concerts, Comedy, Ticketed Events" : "Tónleikar, Uppistand, Miðasala"}
-                    image="/images/button1.png"
+                    icon={Ticket}
                     selected={formData.venueType === 'public'}
                     onClick={() => updateForm('venueType', 'public')}
                 />
                 <VenueTypeCard
                     label={language === 'en' ? "Private Events" : "Einkaviðburðir"}
                     desc={language === 'en' ? "Weddings, Parties, Corporate" : "Brúðkaup, Veislur, Fyrirtæki"}
-                    image="/images/button2.png"
+                    icon={PartyPopper}
                     selected={formData.venueType === 'private'}
                     onClick={() => updateForm('venueType', 'private')}
                 />
                 <VenueTypeCard
                     label={language === 'en' ? "Both" : "Bæði"}
                     desc={language === 'en' ? "We do it all!" : "Við gerum allt!"}
-                    image="/images/button3.png"
+                    icon={Sparkles}
                     selected={formData.venueType === 'both'}
                     onClick={() => updateForm('venueType', 'both')}
                 />
@@ -570,7 +567,7 @@ const Step3_Private = ({ formData, updateForm, updateAmenity }) => (
     </div>
 );
 
-const Step4_General = ({ formData, updateForm, handleLogoUpload }) => (
+const Step4_General = ({ formData, updateForm, handleLogoUpload, handleGalleryUpload, uploading }) => (
     <div className="animate-fade-in w-full max-w-2xl mx-auto space-y-6">
         <h2 className="text-3xl font-bold mb-8 text-center text-white">Final Touches</h2>
 
@@ -654,19 +651,81 @@ const Step4_General = ({ formData, updateForm, handleLogoUpload }) => (
         </div>
 
         <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Logo / Photo</label>
             <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                {formData.logoUrl && (
-                    <img src={formData.logoUrl} alt="Preview" className="w-12 h-12 rounded-full object-cover border border-white/20" />
+                {formData.logoUrl ? (
+                    <div className="relative group">
+                        <img src={formData.logoUrl} alt="Preview" className="w-16 h-16 rounded-full object-cover border border-white/20" />
+                        <button
+                            onClick={() => updateForm('logoUrl', '')}
+                            className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <X size={12} fill="white" />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <ImageIcon className="text-gray-500" />
+                    </div>
                 )}
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ffd700]/10 file:text-[#ffd700] hover:file:bg-[#ffd700]/20"
-                />
+                <div className="flex-1">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        disabled={uploading}
+                        className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ffd700]/10 file:text-[#ffd700] hover:file:bg-[#ffd700]/20 disabled:opacity-50 cursor-pointer"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{uploading ? 'Uploading...' : 'Upload a small logo/avatar (Max 2MB)'}</p>
+                </div>
             </div>
-            <p className="text-xs text-gray-500">Upload a small image to be used on your landing site.</p>
+        </div>
+
+        <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300 flex justify-between">
+                <span>Venue Gallery</span>
+                <span className="text-xs text-[#ffd700]">{formData.venueImages?.length || 0}/5 Images</span>
+            </label>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {/* Existing Images */}
+                {(formData.venueImages || []).map((url, index) => (
+                    <div key={index} className="relative aspect-square rounded-xl overflow-hidden group border border-white/10">
+                        <img src={url} alt={`Venue ${index + 1}`} className="w-full h-full object-cover" />
+                        <button
+                            onClick={() => {
+                                const newImages = formData.venueImages.filter((_, i) => i !== index);
+                                updateForm('venueImages', newImages);
+                            }}
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500/80 rounded-full text-white backdrop-blur-sm transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                            <Trash2 size={14} />
+                        </button>
+                    </div>
+                ))}
+
+                {/* Upload Button */}
+                {(formData.venueImages?.length || 0) < 5 && (
+                    <label className={`aspect-square rounded-xl border-2 border-dashed border-white/10 hover:border-[#ffd700]/50 hover:bg-[#ffd700]/5 flex flex-col items-center justify-center cursor-pointer transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleGalleryUpload}
+                            disabled={uploading}
+                        />
+                        {uploading ? (
+                            <Loader2 className="w-6 h-6 text-[#ffd700] animate-spin" />
+                        ) : (
+                            <>
+                                <Plus className="w-8 h-8 text-gray-400 group-hover:text-[#ffd700] mb-2" />
+                                <span className="text-xs text-gray-500 group-hover:text-[#ffd700]">Add Image</span>
+                            </>
+                        )}
+                    </label>
+                )}
+            </div>
+            <p className="text-xs text-gray-500">Show off your space! Upload up to 5 high-quality photos.</p>
         </div>
 
         <div className="space-y-2">
@@ -1008,6 +1067,7 @@ const CreateVenue = () => {
         phoneNumber: '',
         description: '',
         logoUrl: '',
+        venueImages: [],
         capacity: '', // General capacity if not private
         anythingElse: ''
     });
@@ -1100,20 +1160,65 @@ const CreateVenue = () => {
         }));
     };
 
-    const handleLogoUpload = (e) => {
+    // --- Image Upload Helpers ---
+    const uploadImageToStorage = async (file, pathPrefix = 'misc') => {
+        if (!file) return null;
+
+        // 5MB Limit per file for gallery, 2MB for logo ideally
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error(`File ${file.name} is too large (Max 5MB)`);
+            return null;
+        }
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        const storageRef = ref(storage, `venue-assets/${currentUser.uid}/${pathPrefix}/${fileName}`);
+
+        try {
+            setLoading(true);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return downloadURL;
+        } catch (error) {
+            console.error("Upload failed:", error);
+            toast.error(`Failed to upload ${file.name}`);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.size > 1024 * 1024) { // 1MB Limit
-            toast.error("Image is too large. Please choose an image under 1MB.");
+        const url = await uploadImageToStorage(file, 'logos');
+        if (url) {
+            updateForm('logoUrl', url);
+            toast.success("Logo uploaded!");
+        }
+    };
+
+    const handleGalleryUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+
+        const currentCount = formData.venueImages?.length || 0;
+        if (currentCount + files.length > 5) {
+            toast.error("You can only have 5 images total.");
             return;
         }
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            updateForm('logoUrl', reader.result);
-        };
-        reader.readAsDataURL(file);
+        let newUrls = [];
+        for (const file of files) {
+            const url = await uploadImageToStorage(file, 'gallery');
+            if (url) newUrls.push(url);
+        }
+
+        if (newUrls.length > 0) {
+            updateForm('venueImages', [...(formData.venueImages || []), ...newUrls]);
+            toast.success(`Added ${newUrls.length} images`);
+        }
     };
 
     // --- Navigation Logic ---
@@ -1210,7 +1315,7 @@ const CreateVenue = () => {
             {step === 1 && <Step1_Type formData={formData} updateForm={updateForm} />}
             {step === 2 && <Step2_Gig formData={formData} updateForm={updateForm} />}
             {step === 3 && <Step3_Private formData={formData} updateForm={updateForm} updateAmenity={updateAmenity} />}
-            {step === 4 && <Step4_General formData={formData} updateForm={updateForm} handleLogoUpload={handleLogoUpload} />}
+            {step === 4 && <Step4_General formData={formData} updateForm={updateForm} handleLogoUpload={handleLogoUpload} handleGalleryUpload={handleGalleryUpload} uploading={loading} />}
             {step === 5 && <Step5_Review formData={formData} setStep={setStep} updateForm={updateForm} currentUser={currentUser} />}
 
             {/* Preview Modal Overlay */}
