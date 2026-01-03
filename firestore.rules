@@ -9,7 +9,7 @@ service cloud.firestore {
     
     function isAdmin() {
       return request.auth.token.email.matches('.*@bling.is') || 
-             request.auth.token.email in ['jonbs@bling.is', 'admin@bling.is', 'jonb.steinsson@gmail.com'];
+             request.auth.token.email in ['jonbs@bling.is', 'admin@bling.is', 'jonb.steinsson@gmail.com', 'jon@bling.is'];
     }
 
     // --- Venues Collection ---

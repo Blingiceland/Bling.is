@@ -8,7 +8,7 @@ import { useLanguage } from "../context/LanguageContext"
 
 import { Search, X, Menu, User, Calendar as CalendarIcon, MapPin } from 'lucide-react';
 
-const ADMIN_EMAILS = ['admin@bling.is', 'jonbs@bling.is'];
+const ADMIN_EMAILS = ['admin@bling.is', 'jonbs@bling.is', 'jon@bling.is', 'jonb.steinsson@gmail.com'];
 
 export function Header() {
     const { currentUser, logout } = useAuth();

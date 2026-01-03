@@ -7,7 +7,7 @@ import { Shield, Check, X, Trash2, ExternalLink, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '../components/ui/skeleton';
 
-const ADMIN_EMAILS = ['admin@bling.is', 'jonbs@bling.is']; // Whitelist
+const ADMIN_EMAILS = ['admin@bling.is', 'jonbs@bling.is', 'jonb.steinsson@gmail.com', 'jon@bling.is']; // Whitelist
 
 const AdminDashboard = () => {
     const { currentUser } = useAuth();
@@ -162,9 +162,32 @@ const AdminDashboard = () => {
                                 title="Review Application (Edit)"
                             >
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold">Review & Edit</span>
+                                    <span className="text-sm font-bold">Edit</span>
                                 </div>
                             </button>
+
+                            <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+
+                            {/* Status Actions */}
+                            {venue.status !== 'approved' && (
+                                <button
+                                    onClick={() => handleStatusUpdate(venue.id, 'approved')}
+                                    className="p-2 text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
+                                    title="Approve Venue"
+                                >
+                                    <Check className="w-5 h-5" />
+                                </button>
+                            )}
+
+                            {venue.status !== 'rejected' && (
+                                <button
+                                    onClick={() => handleStatusUpdate(venue.id, 'rejected')}
+                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    title="Reject Venue"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            )}
 
                             <div className="w-px h-8 bg-white/10 hidden md:block"></div>
 
