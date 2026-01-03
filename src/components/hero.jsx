@@ -1,12 +1,9 @@
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "./ui/button"
+import React from "react"
+import { Link } from "react-router-dom"
 import { useLanguage } from "../context/LanguageContext"
-import { Search, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export function Hero() {
-    const [bookingMode, setBookingMode] = useState(false);
-    const navigate = useNavigate();
     const { language } = useLanguage();
 
     return (
@@ -39,86 +36,55 @@ export function Hero() {
                     )}
                 </p>
 
-                <div className="glass-card p-10 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md w-full max-w-4xl mx-auto shadow-2xl">
-                    {!bookingMode ? (
-                        <div className="space-y-8">
-                            <h3 className="text-3xl font-bold text-white mb-6 text-center">
-                                {language === 'en' ? 'What are you looking for?' : 'Hverju ertu að leita eftir?'}
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <button
-                                    onClick={() => setBookingMode(true)}
-                                    className="group p-8 rounded-xl bg-[#ffd700] hover:bg-[#ffd700]/90 text-black text-left transition-all hover:-translate-y-1 shadow-[0_0_20px_rgba(255,215,0,0.2)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] h-full min-h-[160px] flex flex-col justify-center"
-                                >
-                                    <div className="mb-4">
-                                        <Search className="w-10 h-10" />
-                                    </div>
-                                    <div className="font-bold text-2xl mb-1">
-                                        {language === 'en' ? 'Find a Venue' : 'Finna Stað'}
-                                    </div>
-                                    <div className="text-base opacity-80 font-medium tracking-wide">
-                                        {language === 'en' ? 'For Gigs & Parties' : 'Fyrir Viðburði & Veislur'}
-                                    </div>
-                                </button>
+                <div className="glass-card p-4 md:p-8 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md w-full max-w-6xl mx-auto shadow-2xl">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                                <Link to="/signup?intent=venue" className="block h-full">
-                                    <button className="w-full h-full min-h-[160px] group p-8 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center">
-                                        <div className="mb-4">
-                                            <Sparkles className="w-10 h-10 text-[#ffd700]" />
-                                        </div>
-                                        <div className="font-bold text-2xl mb-1">
-                                            {language === 'en' ? 'List Your Space' : 'Skráðu Þinn Stað'}
-                                        </div>
-                                        <div className="text-base text-gray-400">
-                                            {language === 'en' ? 'For Venue Owners' : 'Fyrir Staðarhaldara'}
-                                        </div>
-                                    </button>
-                                </Link>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="navigate-animation">
-                            <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-                                <h3 className="text-2xl font-bold text-white">
-                                    {language === 'en' ? 'What kind of event?' : 'Hvernig viðburður?'}
-                                </h3>
-                                <button onClick={() => setBookingMode(false)} className="text-base font-medium text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                                    ← {language === 'en' ? 'Back' : 'Til baka'}
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <button
-                                    onClick={() => navigate('/signup?intent=profile')}
-                                    className="group p-6 rounded-xl border border-[#ffd700]/30 bg-[#ffd700]/10 hover:bg-[#ffd700]/20 flex items-center gap-6 transition-all hover:scale-[1.02]"
-                                >
-                                    <div className="w-16 h-16 rounded-full bg-[#ffd700]/20 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(255,215,0,0.2)]">🎤</div>
-                                    <div className="text-left">
-                                        <div className="font-bold text-xl text-[#ffd700] mb-1">
-                                            {language === 'en' ? 'Public Gig' : 'Opinber Viðburður'}
-                                        </div>
-                                        <div className="text-sm text-gray-300">
-                                            {language === 'en' ? 'I am an Artist or Promoter looking for a stage' : 'Tónleikar, uppistand eða annað skemmtanahald'}
-                                        </div>
+                        {/* 1. Register Venue */}
+                        <Link to="/signup?intent=venue" className="group h-full">
+                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl border border-dashed border-[#ffd700]/50 bg-[#ffd700]/5 hover:bg-[#ffd700]/10 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-2 opacity-50"><Sparkles className="w-12 h-12 text-[#ffd700]" /></div>
+                                <div className="relative z-10">
+                                    <div className="font-bold text-xl md:text-2xl mb-1 text-[#ffd700]">
+                                        {language === 'en' ? 'List Your Space' : 'Skráðu Þinn Stað'}
                                     </div>
-                                </button>
+                                    <div className="text-sm md:text-base text-gray-400">
+                                        {language === 'en' ? 'For Venue Owners' : 'Fyrir Staðarhaldara'}
+                                    </div>
+                                </div>
+                            </button>
+                        </Link>
 
-                                <button
-                                    onClick={() => navigate('#private-search')}
-                                    className="group p-6 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 flex items-center gap-6 transition-all hover:scale-[1.02]"
-                                >
-                                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-3xl">🥂</div>
-                                    <div className="text-left">
-                                        <div className="font-bold text-xl text-white mb-1">
-                                            {language === 'en' ? 'Private Event' : 'Einkaviðburður'}
-                                        </div>
-                                        <div className="text-sm text-gray-400">
-                                            {language === 'en' ? 'Wedding, Birthday, or Corporate Party' : 'Brúðkaup, afmæli eða fyrirtækjapartý'}
-                                        </div>
+                        {/* 2. Private Event */}
+                        <Link to="/venues" className="group h-full">
+                            <button className="w-full h-full min-h-[160px] p-6 rounded-xl bg-white/5 hover:bg-white/10 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center border border-white/10 relative overflow-hidden">
+                                <div className="absolute top-2 right-4 text-5xl opacity-20 grayscale group-hover:grayscale-0 transition-all">🥂</div>
+                                <div className="relative z-10">
+                                    <div className="font-bold text-xl md:text-2xl mb-2 text-white">
+                                        {language === 'en' ? 'Private Event' : 'Einkaviðburður'}
                                     </div>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                                    <div className="text-sm md:text-base text-gray-400 leading-snug">
+                                        {language === 'en' ? 'Weddings, Birthday, or Corporate Party' : 'Brúðkaup, afmæli eða fyrirtækjapartý'}
+                                    </div>
+                                </div>
+                            </button>
+                        </Link>
+
+                        {/* 3. Live Gig */}
+                        <Link to="/venues?type=Live Venue" className="group h-full">
+                            <button className="w-full h-full min-h-[160px] p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 hover:border-blue-400/50 hover:bg-blue-900/50 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden shadow-lg shadow-blue-900/10">
+                                <div className="absolute top-2 right-4 text-5xl opacity-40 group-hover:scale-110 transition-transform">🎤</div>
+                                <div className="relative z-10">
+                                    <div className="font-bold text-xl md:text-2xl mb-2 text-blue-100">
+                                        {language === 'en' ? 'Public Gig' : 'Opinber Viðburður'}
+                                    </div>
+                                    <div className="text-sm md:text-base text-blue-200/70 leading-snug">
+                                        {language === 'en' ? 'Concerts, stand-up or other entertainment' : 'Tónleikar, uppistand eða annað skemmtanahald'}
+                                    </div>
+                                </div>
+                            </button>
+                        </Link>
+
+                    </div>
                 </div>
 
             </div>
