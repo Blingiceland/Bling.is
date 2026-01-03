@@ -1,7 +1,7 @@
 import React from "react"
 import { ICELAND_REGIONS } from "../constants/locations";
 import { VENUE_TYPES, getVenueTypeLabel } from "../constants/venueTypes";
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { SignupModal } from "./signup-modal"
 import { useAuth } from "../context/AuthContext"
@@ -20,7 +20,7 @@ export function Header() {
     const [location, setLocation] = React.useState('Reykjavik');
     const [type, setType] = React.useState([]);
     const [showMobileSearch, setShowMobileSearch] = React.useState(false); // New Mobile State
-    const navigate = require('react-router-dom').useNavigate();
+    const navigate = useNavigate();
 
     const handleSearch = () => {
         const params = new URLSearchParams();
