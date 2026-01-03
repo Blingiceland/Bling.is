@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ICELAND_REGIONS, getRegionForCity, getCityCoordinates } from '../constants/locations';
+import { VENUE_TYPES, getVenueTypeLabel } from '../constants/venueTypes';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
@@ -40,8 +41,8 @@ const VenueCard = ({ venue }) => {
                 {venue.venueSubTypes && venue.venueSubTypes.length > 0 ? (
                     venue.venueSubTypes.slice(0, 3).map((subType, index) => (
                         <span key={index} className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md shadow-lg border ${venue.venueType === 'private'
-                                ? 'bg-purple-600/90 text-white border-white/10'
-                                : 'bg-[#ffd700]/90 text-black border-[#ffd700]/10'
+                            ? 'bg-purple-600/90 text-white border-white/10'
+                            : 'bg-[#ffd700]/90 text-black border-[#ffd700]/10'
                             }`}>
                             {subType}
                         </span>
@@ -161,13 +162,7 @@ const PublicVenuesPage = () => {
 
         const typeParam = searchParams.get('type');
         if (typeParam) {
-            if (['bar', 'club', 'live', 'public'].includes(typeParam)) {
-                setTypes(['public']);
-            } else if (['hall', 'private'].includes(typeParam)) {
-                setTypes(['private']);
-            } else {
-                setTypes([typeParam]);
-            }
+            setTypes(typeParam.split(','));
         }
 
     }, []); // Run once on mount
@@ -202,14 +197,22 @@ const PublicVenuesPage = () => {
 
             if (!looseMatch) return false;
         }
-        // If 'types' contains 'public', show public/both.
+        // Venue Type Filter
         if (types.length > 0) {
-            const matchesType = types.some(t => {
-                if (t === 'public' || t === 'bar' || t === 'club') return venue.venueType === 'public' || venue.venueType === 'both';
-                if (t === 'private' || t === 'hall') return venue.venueType === 'private' || venue.venueType === 'both';
+            const hasMatchingType = types.some(t => {
+                // Check exact sub-type match
+                if (venue.venueSubTypes?.includes(t)) return true;
+
+                // Fallback for legacy data/broad categories
+                if (t === 'Live Venue' || t === 'Nightclub' || t === 'Bar / Pub') {
+                    return venue.venueType === 'public' || venue.venueType === 'both';
+                }
+                if (t === 'Banquet Hall' || t === 'Conference Hall') {
+                    return venue.venueType === 'private' || venue.venueType === 'both';
+                }
                 return false;
             });
-            if (!matchesType) return false;
+            if (!hasMatchingType) return false;
         }
 
         // Capacity
@@ -287,16 +290,14 @@ const PublicVenuesPage = () => {
                                 <Filter className="w-4 h-4 text-[#ffd700]" /> Type
                             </h3>
                             <div className="space-y-2">
-                                <FilterCheckbox
-                                    label="Public (Bars / Live)"
-                                    checked={types.includes('public')}
-                                    onChange={() => toggleFilter(types, setTypes, 'public')}
-                                />
-                                <FilterCheckbox
-                                    label="Private (Banquet Halls)"
-                                    checked={types.includes('private')}
-                                    onChange={() => toggleFilter(types, setTypes, 'private')}
-                                />
+                                {VENUE_TYPES.map(type => (
+                                    <FilterCheckbox
+                                        key={type.id}
+                                        label={getVenueTypeLabel(type.id, 'en')} // Start with EN, or use context if available
+                                        checked={types.includes(type.id)}
+                                        onChange={() => toggleFilter(types, setTypes, type.id)}
+                                    />
+                                ))}
                             </div>
                         </div>
 

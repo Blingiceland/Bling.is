@@ -1,12 +1,13 @@
 import React from "react"
 import { ICELAND_REGIONS } from "../constants/locations";
+import { VENUE_TYPES, getVenueTypeLabel } from "../constants/venueTypes";
 import { Link } from "react-router-dom"
 import { Button } from "./ui/button"
 import { SignupModal } from "./signup-modal"
 import { useAuth } from "../context/AuthContext"
 import { useLanguage } from "../context/LanguageContext"
 
-import { Search, X, Menu, User, Calendar as CalendarIcon, MapPin } from 'lucide-react';
+import { Search, X, Menu, User, Calendar as CalendarIcon, MapPin, Check } from 'lucide-react';
 
 const ADMIN_EMAILS = ['admin@bling.is', 'jonbs@bling.is', 'jon@bling.is', 'jonb.steinsson@gmail.com'];
 
@@ -17,7 +18,7 @@ export function Header() {
     // Search State
     const [date, setDate] = React.useState('');
     const [location, setLocation] = React.useState('Reykjavik');
-    const [type, setType] = React.useState('');
+    const [type, setType] = React.useState([]);
     const [showMobileSearch, setShowMobileSearch] = React.useState(false); // New Mobile State
     const navigate = require('react-router-dom').useNavigate();
 
@@ -25,7 +26,7 @@ export function Header() {
         const params = new URLSearchParams();
         if (date) params.set('date', date);
         if (location) params.set('location', location);
-        if (type) params.set('type', type);
+        if (type.length > 0) params.set('type', type.join(','));
         setShowMobileSearch(false); // Close mobile menu on search
         navigate(`/venues?${params.toString()}`);
     };
@@ -75,21 +76,42 @@ export function Header() {
                             <span className="text-[10px]">▼</span>
                         </div>
                     </div>
-                    <div className="px-4 relative">
-                        <select
-                            value={type}
-                            onChange={(e) => setType(e.target.value)}
-                            className="bg-transparent text-white text-sm focus:outline-none appearance-none cursor-pointer min-w-[100px] font-medium"
-                        >
-                            <option value="" className="text-black">{language === 'en' ? 'Any Venue' : 'Allar Tegundir'}</option>
-                            <option value="bar" className="text-black">{language === 'en' ? 'Bar / Pub' : 'Bar / Krá'}</option>
-                            <option value="club" className="text-black">{language === 'en' ? 'Nightclub' : 'Skemmtistaður'}</option>
-                            <option value="live" className="text-black">{language === 'en' ? 'Live Venue' : 'Tónleikastaður'}</option>
-                            <option value="hall" className="text-black">{language === 'en' ? 'Banquet Hall' : 'Veislusalur'}</option>
-                            <option value="restaurant" className="text-black">{language === 'en' ? 'Restaurant' : 'Veitingastaður'}</option>
-                        </select>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                            <span className="text-[10px]">▼</span>
+                    {/* Type Multi-Select */}
+                    <div className="px-4 relative group">
+                        <button className="flex items-center gap-2 text-sm font-medium text-white focus:outline-none min-w-[140px] appearance-none cursor-pointer py-1">
+                            <span className="truncate max-w-[120px]">
+                                {type.length === 0
+                                    ? (language === 'en' ? 'Any Venue' : 'Allar Tegundir')
+                                    : (type.length === 1 ? getVenueTypeLabel(type[0], language) : `${type.length} ${language === 'en' ? 'Selected' : 'Valdir'}`)
+                                }
+                            </span>
+                            <span className="text-gray-400 text-[10px]">▼</span>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        <div className="absolute top-full right-0 mt-2 w-56 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-2 hidden group-hover:block transition-all opacity-0 group-hover:opacity-100 z-50">
+                            {VENUE_TYPES.map(t => (
+                                <label key={t.id} className="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg cursor-pointer">
+                                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${type.includes(t.id) ? 'bg-[#ffd700] border-[#ffd700]' : 'border-white/30'}`}>
+                                        {type.includes(t.id) && <Check className="w-3 h-3 text-black stroke-[3px]" />}
+                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        className="hidden"
+                                        checked={type.includes(t.id)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setType([...type, t.id]);
+                                            } else {
+                                                setType(type.filter(id => id !== t.id));
+                                            }
+                                        }}
+                                    />
+                                    <span className={`text-sm ${type.includes(t.id) ? 'text-white' : 'text-gray-400'}`}>
+                                        {language === 'en' ? t.labelEn : t.labelIs}
+                                    </span>
+                                </label>
+                            ))}
                         </div>
                     </div>
                     <button
