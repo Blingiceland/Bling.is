@@ -745,7 +745,10 @@ const Step4_General = ({ formData, updateForm, handleLogoUpload, handleGalleryUp
 // --- Review & Summary Screen ---
 const Step5_Review = ({ formData, setStep, updateForm, currentUser }) => {
     // Admin Check
-    const isAdmin = currentUser && (currentUser.email.includes('@bling.is') || currentUser.email === 'jonbs@bling.is');
+    const isAdmin = currentUser && (
+        currentUser.email.includes('@bling.is') ||
+        ['jonbs@bling.is', 'jonb.steinsson@gmail.com', 'admin@bling.is'].includes(currentUser.email)
+    );
 
     // Helper to jump to edit a section
     const EditBtn = ({ stepNum }) => (
