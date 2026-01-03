@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Calendar, CheckCircle, Smartphone, Globe, Shield, Activity, Users } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import ContactModal from './ContactModal';
 
 export function LandingContent() {
     const navigate = useNavigate();
     const { language } = useLanguage();
+    const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
     const text = {
         en: {
@@ -290,7 +292,7 @@ export function LandingContent() {
                             {content.ctaBtnReg}
                         </button>
                         <button
-                            onClick={() => window.location.href = 'mailto:hello@bling.is'}
+                            onClick={() => setIsContactModalOpen(true)}
                             className="px-8 py-4 bg-transparent border-2 border-black text-black text-lg font-bold rounded-xl hover:bg-black/5 transition-colors"
                         >
                             {content.ctaBtnContact}
@@ -298,6 +300,11 @@ export function LandingContent() {
                     </div>
                 </div>
             </section>
+
+            <ContactModal
+                isOpen={isContactModalOpen}
+                onClose={() => setIsContactModalOpen(false)}
+            />
         </div>
     );
 }
