@@ -326,11 +326,11 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-gray-300">Sound Engineer</label>
                                         <select value={soundEngineer} onChange={e => setSoundEngineer(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#ffd700]/50">
-                                            <option value="venue" className="bg-black">Need Venue Engineer</option>
+                                            <option value="venue" className="bg-black">Need Sound Engineer</option>
                                             <option value="own" className="bg-black">Bring Own Engineer</option>
                                         </select>
                                         <p className="text-[10px] text-gray-500 italic">
-                                            * We cannot guarantee to find a sound engineer or give a fixed price.
+                                            We can not always promise that we can provide an Engineer, price depends on scope, length and availability
                                         </p>
                                     </div>
                                 </div>
