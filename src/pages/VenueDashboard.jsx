@@ -126,8 +126,13 @@ const VenueDashboard = () => {
     // Filter Logic
     const pendingRequests = requests.filter(r => r.status === 'pending');
     // For approved, let's sort by Event Date (soonest first) rather than created date
+    // AND filter out past events
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    const todaySeconds = Math.floor(today.getTime() / 1000);
+
     const approvedRequests = requests
-        .filter(r => r.status === 'approved')
+        .filter(r => r.status === 'approved' && (r.date?.seconds || 0) >= todaySeconds)
         .sort((a, b) => (a.date?.seconds || 0) - (b.date?.seconds || 0));
 
     // ----------------------------------------------------------------------
