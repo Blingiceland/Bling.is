@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { collection, query, where, getDocs, orderBy, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, Plus, MapPin, Calendar, Settings, Check, X, Clock, Send, Link as LinkIcon } from 'lucide-react';
 import { Skeleton } from '../components/ui/skeleton';
@@ -399,6 +399,22 @@ const VenueDashboard = () => {
                             <div className="flex gap-2 mt-4">
                                 <button className="flex-1 py-2 bg-white/5 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
                                     Edit Profile
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        if (!window.confirm("Are you sure you want to delete this profile?")) return;
+                                        try {
+                                            await deleteDoc(doc(db, "profiles", profile.id));
+                                            setProfiles(prev => prev.filter(p => p.id !== profile.id));
+                                            toast.success("Profile deleted");
+                                        } catch (err) {
+                                            console.error(err);
+                                            toast.error("Failed to delete");
+                                        }
+                                    }}
+                                    className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors border border-red-500/20"
+                                >
+                                    <X className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
