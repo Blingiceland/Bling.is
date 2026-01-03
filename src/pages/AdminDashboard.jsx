@@ -168,29 +168,6 @@ const AdminDashboard = () => {
 
                             <div className="w-px h-8 bg-white/10 hidden md:block"></div>
 
-                            {/* Status Actions */}
-                            {venue.status !== 'approved' && (
-                                <button
-                                    onClick={() => handleStatusUpdate(venue.id, 'approved')}
-                                    className="p-2 text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
-                                    title="Approve Venue"
-                                >
-                                    <Check className="w-5 h-5" />
-                                </button>
-                            )}
-
-                            {venue.status !== 'rejected' && (
-                                <button
-                                    onClick={() => handleStatusUpdate(venue.id, 'rejected')}
-                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                    title="Reject Venue"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            )}
-
-                            <div className="w-px h-8 bg-white/10 hidden md:block"></div>
-
                             <div className="w-px h-8 bg-white/10 hidden md:block"></div>
 
                             <button
