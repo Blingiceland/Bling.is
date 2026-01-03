@@ -124,6 +124,11 @@ export function Header() {
 
                 {currentUser ? (
                     <div className="flex items-center gap-4">
+                        {/* Browse Venues - Bling Blue Button */}
+                        <Link to="/venues" className="hidden md:block bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95">
+                            {language === 'en' ? 'Browse Venues' : 'Staðir í Boði'}
+                        </Link>
+
                         {/* Lang Toggle */}
                         <button
                             onClick={toggleLanguage}
@@ -169,6 +174,9 @@ export function Header() {
                     </div>
                 ) : (
                     <div className="flex items-center gap-4">
+                        <Link to="/venues" className="hidden md:block bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95 mr-2">
+                            {language === 'en' ? 'Browse Venues' : 'Staðir í Boði'}
+                        </Link>
                         <button
                             onClick={toggleLanguage}
                             className="hidden md:flex w-10 h-10 rounded-full border border-white/10 hover:bg-white/10 items-center justify-center text-sm font-bold text-[#ffd700] transition-colors"
