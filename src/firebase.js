@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: Replace with Real Keys provided by User
 const firebaseConfig = {
-  apiKey: "AIzaSyA6uU13Dre7yVpk68d2Z46fOJxLT8FMdmw",
-  authDomain: "bling-app-e40c6.firebaseapp.com",
-  projectId: "bling-app-e40c6",
-  storageBucket: "bling-app-e40c6.firebasestorage.app",
-  messagingSenderId: "551671994384",
-  appId: "1:551671994384:web:1d6a4abd2d5aa63357d295"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

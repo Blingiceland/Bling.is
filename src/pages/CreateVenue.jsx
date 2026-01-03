@@ -991,11 +991,7 @@ const CreateVenue = () => {
         outdoorSpace: false,
         wheelchairAccess: false,
 
-        // Amenities
-        furnitureIncluded: false,
-        linensIncluded: false,
-        outdoorSpace: false,
-        wheelchairAccess: false,
+
 
         // Custom Dynamic Fields
         customTech: [], // Public Gig
