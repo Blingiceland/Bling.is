@@ -312,6 +312,7 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
                                         type="time"
                                         value={startTime}
                                         onChange={e => setStartTime(e.target.value)}
+                                        step="60"
                                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none [color-scheme:dark]"
                                     />
                                 </div>
@@ -321,6 +322,7 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
                                         type="time"
                                         value={endTime}
                                         onChange={e => setEndTime(e.target.value)}
+                                        step="60"
                                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none [color-scheme:dark]"
                                     />
                                 </div>

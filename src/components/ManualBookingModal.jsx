@@ -145,6 +145,7 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                                     name="startTime"
                                     value={formData.startTime}
                                     onChange={handleChange}
+                                    step="60"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors [color-scheme:dark]"
                                 />
                             </div>
@@ -161,6 +162,7 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                                 name="endTime"
                                 value={formData.endTime}
                                 onChange={handleChange}
+                                step="60"
                                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors [color-scheme:dark]"
                             />
                         </div>
