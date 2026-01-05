@@ -9,7 +9,7 @@ service cloud.firestore {
     
     function isAdmin() {
       return request.auth.token.email.matches('.*@bling.is') || 
-             request.auth.token.email in ['jonbs@bling.is', 'admin@bling.is', 'jonb.steinsson@gmail.com', 'jon@bling.is'];
+             request.auth.token.email in ['jonbs@bling.is', 'admin@bling.is', 'jon@bling.is'];
     }
 
     // --- Venues Collection ---
@@ -23,9 +23,8 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow update: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
       
-      // Only Admins can delete (or owner if we want) - restricting to Admin for safety later?
-      // For now, let owners delete.
-      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      // Owner or Admin can delete
+      allow delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
     }
 
     // --- Profiles (Artists/Promoters) ---
@@ -42,8 +41,9 @@ service cloud.firestore {
 
     // --- Users Collection ---
     match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
+      // Allow users to read/write their own data, OR Admins to access all
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn();
     }
 
     // --- Bookings ---
@@ -61,7 +61,7 @@ service cloud.firestore {
             )
         );
 
-        allow update: if isSignedIn() && (
+        allow update, delete: if isSignedIn() && (
             resource.data.ownerId == request.auth.uid ||
             resource.data.bookerId == request.auth.uid
         );

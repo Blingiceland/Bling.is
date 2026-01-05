@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, orderBy, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Plus, MapPin, Calendar, Settings, Check, X, Clock, Send, Link as LinkIcon } from 'lucide-react';
+import { LayoutDashboard, Plus, MapPin, Calendar, Settings, Check, X, Clock, Send, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { Skeleton } from '../components/ui/skeleton';
 import { toast } from 'sonner';
+import ManualBookingModal from '../components/ManualBookingModal';
 
 const VenueDashboard = () => {
     const { currentUser } = useAuth();
@@ -16,6 +17,7 @@ const VenueDashboard = () => {
     const [sentRequests, setSentRequests] = useState([]); // New state for booker view
     const [loading, setLoading] = useState(true);
     const [expandedReq, setExpandedReq] = useState(null); // Track which request is open
+    const [isManualModalOpen, setIsManualModalOpen] = useState(false); // New state for modal
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -102,6 +104,35 @@ const VenueDashboard = () => {
         }
     };
 
+    // New delete function for sent requests
+    const handleDeleteSentRequest = (requestId) => {
+        toast("Are you sure you want to delete this request?", {
+            action: {
+                label: 'Delete',
+                onClick: async () => {
+                    try {
+                        await deleteDoc(doc(db, "bookings", requestId));
+                        setSentRequests(prev => prev.filter(req => req.id !== requestId));
+                        toast.success("Request deleted");
+                    } catch (error) {
+                        console.error("Error deleting booking:", error);
+                        toast.error("Failed to delete request");
+                    }
+                }
+            },
+            cancel: {
+                label: 'Cancel'
+            },
+            duration: 5000,
+        });
+    };
+
+    // Function to handle newly created manual bookings
+    const handleManualBookingAdded = (newBooking) => {
+        // Add to 'requests' (Incoming Bookings) since the user is both owner and "booker" technically
+        setRequests(prev => [newBooking, ...prev]);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen pt-24 px-4 md:px-8 max-w-7xl mx-auto">
@@ -178,6 +209,14 @@ const VenueDashboard = () => {
                     <p className="text-gray-400">Manage your profiles, venues, and bookings.</p>
                 </div>
                 <div className="flex gap-3">
+                    {venues.length > 0 && (
+                        <button
+                            onClick={() => setIsManualModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#ffd700] text-black font-bold rounded-xl border border-[#ffd700] hover:bg-[#ffd700]/90 transition-all shadow-lg shadow-[#ffd700]/20"
+                        >
+                            <Plus className="w-4 h-4" /> Add Event
+                        </button>
+                    )}
                     {profiles.length > 0 && (
                         <button onClick={() => navigate('/create-venue')} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl border border-white/10 transition-colors">
                             <Plus className="w-4 h-4" /> Space
@@ -243,6 +282,12 @@ const VenueDashboard = () => {
                                             <div className="bg-black/20 p-3 rounded-lg">
                                                 <span className="block text-gray-500 text-xs uppercase mb-1">Act</span>
                                                 <span className="text-white">{req.lineup?.[0]?.name || 'Unknown Artist'}</span>
+                                            </div>
+                                        )}
+                                        {req.eventType === 'manual_entry' && (
+                                            <div className="bg-black/20 p-3 rounded-lg">
+                                                <span className="block text-gray-500 text-xs uppercase mb-1">Notes</span>
+                                                <span className="text-white italic">"{req.message}"</span>
                                             </div>
                                         )}
                                     </div>
@@ -362,8 +407,15 @@ const VenueDashboard = () => {
                 {sentRequests.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {sentRequests.map((req) => (
-                            <div key={req.id} className="glass-card p-6 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
-                                <div className="flex justify-between items-start mb-4">
+                            <div key={req.id} className="glass-card p-6 rounded-2xl border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 transition-colors relative group">
+                                <button
+                                    onClick={() => handleDeleteSentRequest(req.id)}
+                                    className="absolute top-4 right-4 p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-all border border-red-500/20"
+                                    title="Delete Request"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                <div className="flex justify-between items-start mb-4 pr-8">
                                     <div>
                                         <h3 className="font-bold text-white text-lg">{req.venueName}</h3>
                                         <div className="text-blue-400 text-sm font-medium">Status: {req.status}</div>
@@ -475,6 +527,16 @@ const VenueDashboard = () => {
                     </button>
                 </div>
             </div>
+
+            {/* MANUAL BOOKING MODAL */}
+            <ManualBookingModal
+                isOpen={isManualModalOpen}
+                onClose={() => setIsManualModalOpen(false)}
+                venues={venues}
+                currentUser={currentUser}
+                onBookingAdded={handleManualBookingAdded}
+            />
+
         </div >
     );
 };

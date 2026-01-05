@@ -19,20 +19,14 @@ export function Hero() {
 
             <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full flex flex-col items-center justify-center min-h-screen pt-20">
                 <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight text-white text-glow text-center">
-                    {language === 'en' ? "Bling. It's Booked." : "Bling. Það er Bókað."}
+                    {language === 'en' ? "All bookings in one place. No hassle." : "Allar bókanir á einum stað. Ekkert vesen."}
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-200 mb-12 leading-relaxed max-w-3xl text-center">
                     {language === 'en' ? (
-                        <>
-                            Bling is a simple way to book and host events. Whether you’re a venue, an artist or promoter, or someone looking for a space for a private event, Bling helps you connect, book, and move forward — without unnecessary back and forth.
-                            <span className="block mt-4 text-[#ffd700] font-medium">Choose what best describes you to get started.</span>
-                        </>
+                        "Bling is a booking system designed for venues and bars. We turn messy messages on Facebook and Instagram into an organized calendar."
                     ) : (
-                        <>
-                            Bling er einföld leið til að bóka og halda viðburði. Hvort sem þú ert rekstraraðili, listamaður eða prómóter, eða ert að leita að stað fyrir einkaviðburð, hjálpar Bling þér að tengjast, bóka og halda áfram — án óþarfa fram og til baka.
-                            <span className="block mt-4 text-[#ffd700] font-medium">Veldu það sem á best við þig til að byrja.</span>
-                        </>
+                        "Bling er bókunarkerfi hannað fyrir tónleikastaði og bari. Við breytum ruglingslegum skilaboðum á Facebook og Instagram í skipulagt dagatal."
                     )}
                 </p>
 
@@ -56,40 +50,7 @@ export function Hero() {
                         </Link>
                     </div>
 
-                    {/* Secondary Options Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto w-full">
 
-                        {/* 2. Private Event */}
-                        <Link to="/venues" className="group h-full">
-                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl bg-black/40 hover:bg-black/60 border border-white/10 hover:border-white/20 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden backdrop-blur-md">
-                                <div className="absolute top-2 right-4 text-4xl opacity-20 grayscale group-hover:grayscale-0 transition-all">🥂</div>
-                                <div className="relative z-10">
-                                    <div className="font-bold text-xl md:text-2xl mb-2 text-white">
-                                        {language === 'en' ? 'Private Event' : 'Einkaviðburður'}
-                                    </div>
-                                    <div className="text-sm text-gray-400 leading-snug">
-                                        {language === 'en' ? 'Weddings, Birthday, or Corporate Party' : 'Brúðkaup, afmæli eða fyrirtækjapartý'}
-                                    </div>
-                                </div>
-                            </button>
-                        </Link>
-
-                        {/* 3. Live Gig */}
-                        <Link to="/venues?type=Live Venue" className="group h-full">
-                            <button className="w-full h-full min-h-[140px] p-6 rounded-xl bg-gradient-to-br from-blue-900/40 to-blue-800/20 border border-blue-500/30 hover:border-blue-400/50 hover:bg-blue-900/50 text-white text-left transition-all hover:-translate-y-1 flex flex-col justify-center relative overflow-hidden shadow-lg shadow-blue-900/10 backdrop-blur-md">
-                                <div className="absolute top-2 right-4 text-4xl opacity-40 group-hover:scale-110 transition-transform">🎤</div>
-                                <div className="relative z-10">
-                                    <div className="font-bold text-xl md:text-2xl mb-2 text-blue-100">
-                                        {language === 'en' ? 'Public Gig' : 'Opinber Viðburður'}
-                                    </div>
-                                    <div className="text-sm text-blue-200/70 leading-snug">
-                                        {language === 'en' ? 'Concerts, stand-up or other entertainment' : 'Tónleikar, uppistand eða annað skemmtanahald'}
-                                    </div>
-                                </div>
-                            </button>
-                        </Link>
-
-                    </div>
                 </div>
 
             </div>

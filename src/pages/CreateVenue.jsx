@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { collection, addDoc, updateDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, getDoc, serverTimestamp, query, getDocs, arrayUnion } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -747,7 +747,7 @@ const Step5_Review = ({ formData, setStep, updateForm, currentUser }) => {
     // Admin Check
     const isAdmin = currentUser && (
         currentUser.email.includes('@bling.is') ||
-        ['jonbs@bling.is', 'jonb.steinsson@gmail.com', 'admin@bling.is'].includes(currentUser.email)
+        ['jonbs@bling.is', 'admin@bling.is', 'jon@bling.is'].includes(currentUser.email)
     );
 
     // Helper to jump to edit a section
@@ -804,25 +804,37 @@ const Step5_Review = ({ formData, setStep, updateForm, currentUser }) => {
                 </button>
             </div>
 
-            {/* ADMIN ONLY: Status Override */}
+            {/* ADMIN ONLY: Controls */}
             {isAdmin && (
                 <div className="glass-card p-6 rounded-xl border border-[#ffd700]/50 bg-[#ffd700]/5 mb-8">
                     <h3 className="text-xl font-bold text-[#ffd700] mb-4 flex items-center gap-2">
                         👑 Admin Controls
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                        <label className="text-white font-medium">Venue Status:</label>
-                        <select
-                            value={formData.status || 'pending'}
-                            onChange={(e) => updateForm('status', e.target.value)}
-                            className="bg-black border border-white/20 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#ffd700]"
-                        >
-                            <option value="pending">🟡 Pending</option>
-                            <option value="approved">🟢 Approved</option>
-                            <option value="rejected">🔴 Rejected</option>
-                        </select>
-                        <p className="text-xs text-gray-400 md:col-span-2">
-                            Select status and click "Update Venue Profile" below to apply.
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div className="space-y-2">
+                            <label className="text-white font-medium">Venue Status:</label>
+                            <select
+                                value={formData.status || 'pending'}
+                                onChange={(e) => updateForm('status', e.target.value)}
+                                className="w-full bg-black border border-white/20 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#ffd700]"
+                            >
+                                <option value="pending">🟡 Pending</option>
+                                <option value="approved">🟢 Approved</option>
+                                <option value="rejected">🔴 Rejected</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-white font-medium">Assign Owner (Email):</label>
+                            <input
+                                type="email"
+                                value={formData.ownerEmail || ''}
+                                onChange={(e) => updateForm('ownerEmail', e.target.value)}
+                                placeholder="Leave empty for yourself"
+                                className="w-full bg-black border border-white/20 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#ffd700]"
+                            />
+                        </div>
+                        <p className="text-xs text-gray-400 md:col-span-2 pt-2">
+                            Select status and optional owner email. Click "Confirm & Submit" to create.
                         </p>
                     </div>
                 </div>
@@ -1054,7 +1066,6 @@ const CreateVenue = () => {
         wheelchairAccess: false,
 
 
-
         // Custom Dynamic Fields
         customTech: [], // Public Gig
         customHospitality: [], // Public Gig
@@ -1072,7 +1083,11 @@ const CreateVenue = () => {
         logoUrl: '',
         venueImages: [],
         capacity: '', // General capacity if not private
-        anythingElse: ''
+        anythingElse: '',
+
+        // ADMIN OVERRIDE
+        ownerEmail: '',
+        status: 'pending'
     });
 
     // --- Edit Mode: Fetch Data ---
@@ -1250,26 +1265,76 @@ const CreateVenue = () => {
         setLoading(true);
 
         try {
+            // ADMIN OVERRIDE LOGIC
+            let finalOwnerId = currentUser.uid;
+
+            // Re-check admin status here for security (though client-side only)
+            const isAdmin = currentUser && (
+                currentUser.email.includes('@bling.is') ||
+                ['jonbs@bling.is', 'admin@bling.is', 'jon@bling.is'].includes(currentUser.email)
+            );
+
+            if (isAdmin && formData.ownerEmail) {
+                // Find matching user
+                const usersRef = collection(db, "users");
+                // Note: This requires a query. ideally we index email.
+                // Since this is admin-only and low volume, client-side filtering or unindexed query might work if list is small,
+                // BUT better to rely on query if possible. 
+                // However, without index, 'where' might fail. 
+                // Let's assume we can fetch all or try 'where'.
+
+                // Trying WHERE query first. If it fails due to index, we catch error.
+                // Actually, let's fetch all users to be safe? No, that's bad scaling.
+                // We'll try query.
+                const q = query(usersRef); // Fetching all for now since 'where("email"...) might need index
+                const snapshot = await getDocs(q);
+                const targetUser = snapshot.docs.find(d => d.data().email.toLowerCase() === formData.ownerEmail.toLowerCase());
+
+                if (targetUser) {
+                    finalOwnerId = targetUser.id;
+                    console.log("Admin overriding owner to:", targetUser.data().email);
+                } else {
+                    toast.error(`User with email ${formData.ownerEmail} not found!`);
+                    setLoading(false);
+                    return;
+                }
+            }
+
             if (editVenueId) {
                 // --- UPDATE EXISTING ---
                 await updateDoc(doc(db, "venues", editVenueId), {
                     ...formData,
                     updatedAt: serverTimestamp()
                 });
+
+                // If owner changed during edit (rare, but possible if we allow it), we'd need to handle that. 
+                // For now assuming edit doesn't change owner via this form, only via Admin Dash.
+
                 setSubmitted(true);
                 toast.success('Venue updated successfully!');
             } else {
                 // --- CREATE NEW ---
                 const docRef = await addDoc(collection(db, "venues"), {
                     ...formData,
-                    ownerId: currentUser.uid,
+                    ownerId: finalOwnerId,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
-                    status: 'pending',
                     region: 'IS',
                     currency: "ISK",
                     sheetUrl: "",
+                    // ensure status matches admin selection or defaults to pending
+                    status: formData.status || 'pending'
                 });
+
+                // Start: Update User's managedVenues
+                // We must add this new venue ID to the owner's managedVenues list
+                const userRef = doc(db, "users", finalOwnerId);
+                // First check if user doc exists (it should)
+                // We use arrayUnion to add it safely
+                await updateDoc(userRef, {
+                    managedVenues: arrayUnion(docRef.id)
+                }).catch(err => console.warn("Could not update user managedVenues:", err));
+                // End: Update User
 
                 // Factory Call (Only for new venues)
                 fetch("https://script.google.com/macros/s/AKfycbyXfqRdUb7clfycdlzSXZ8z44CPBX2JnNteMmXNCLvLhNMKhRpcrOjSwKt4xdsqIJoO/exec", {
@@ -1287,11 +1352,11 @@ const CreateVenue = () => {
                 }).catch(err => console.warn("Background factory call failed/delayed:", err));
 
                 setSubmitted(true);
-                toast.success('Venue created successfully!');
+                toast.success(`Venue created successfully! Owner: ${finalOwnerId === currentUser.uid ? 'You' : formData.ownerEmail}`);
             }
         } catch (error) {
             console.error("Error submitting venue:", error);
-            toast.error("Error submitting venue. Please try again.");
+            toast.error("Error submitting venue: " + error.message);
         } finally {
             setLoading(false);
         }
