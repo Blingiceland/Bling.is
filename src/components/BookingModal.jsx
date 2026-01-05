@@ -26,6 +26,8 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
     const [guestPhone, setGuestPhone] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     // --- Private Event Specific ---
     const [expectedGuests, setExpectedGuests] = useState('');
@@ -141,7 +143,9 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
                 bookerPhone: guestPhone,
                 eventType: bookingType === 'gig' ? 'live_gig' : 'private_event',
                 date: selectedDate,
-                slot: selectedSlot, // 'day' or 'night'
+                slot: selectedSlot, // 'day' or 'night' - for calendar blocking
+                startTime,
+                endTime,
                 message,
                 status: 'pending',
                 source: 'web_request',
@@ -296,6 +300,31 @@ const BookingModal = ({ isOpen, onClose, venueId, venueName, ownerId }) => {
                                 <input type="email" required value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none" />
                             </div>
                             <input type="tel" value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="Phone Number" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none" />
+                        </div>
+
+                        {/* Time Fields */}
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Time</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-gray-300 block mb-1">Start Time</label>
+                                    <input
+                                        type="time"
+                                        value={startTime}
+                                        onChange={e => setStartTime(e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none [color-scheme:dark]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-gray-300 block mb-1">End Time (Optional)</label>
+                                    <input
+                                        type="time"
+                                        value={endTime}
+                                        onChange={e => setEndTime(e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-[#ffd700]/50 outline-none [color-scheme:dark]"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Specific Fields */}
