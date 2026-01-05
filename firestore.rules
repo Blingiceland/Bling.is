@@ -31,7 +31,7 @@ service cloud.firestore {
     match /profiles/{profileId} {
       allow read: if true; // Profiles are generally public? Or only for logged in users? Let's say public for now.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
     }
     
     // --- Mail (For SendGrid Extension) ---
@@ -41,9 +41,12 @@ service cloud.firestore {
 
     // --- Users Collection ---
     match /users/{userId} {
-      // Allow users to read/write their own data, OR Admins to access all
-      allow read, update, delete: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      // Allow users to read/write their own data
+      allow read, update, delete: if isSignedIn() && request.auth.uid == userId;
       allow create: if isSignedIn();
+      
+      // Allow admins to read, update, and delete ANY user
+      allow read, update, delete: if isSignedIn() && isAdmin();
     }
 
     // --- Bookings ---

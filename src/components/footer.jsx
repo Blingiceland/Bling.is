@@ -77,6 +77,11 @@ export function Footer() {
                 </div>
 
                 <div className="border-t border-[#9d4edd]/20 pt-8 text-center text-sm text-gray-400">
+                    <div className="mb-4">
+                        <Link to="/venues" className="hover:text-[#ffd700] transition-colors font-medium">
+                            {language === 'en' ? 'Browse Venues' : 'Staðir í boði'}
+                        </Link>
+                    </div>
                     <p>{content.rights}</p>
                 </div>
             </div>
