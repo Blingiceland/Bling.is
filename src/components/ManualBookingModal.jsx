@@ -10,7 +10,8 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
         venueId: venues.length > 0 ? venues[0].id : '',
         bookerName: '', // Acts as the "Event Name" or "Artist Name"
         date: '',
-        slot: 'night', // 'day' or 'night'
+        startTime: '',
+        endTime: '',
         message: '', // Description / Notes
         ticketSales: 'no',
     });
@@ -47,7 +48,8 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                 bookerName: formData.bookerName, // Using this for Artist/Event Title
                 bookerEmail: currentUser.email,
                 date: eventDate,
-                slot: formData.slot,
+                startTime: formData.startTime,
+                endTime: formData.endTime,
                 status: 'approved', // Auto-approve manual bookings
                 message: formData.message || 'Manual Entry',
                 ticketSales: formData.ticketSales,
@@ -133,21 +135,34 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                             />
                         </div>
 
-                        {/* Slot */}
+                        {/* Start Time */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-1">Time Slot</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Start Time</label>
                             <div className="relative">
                                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                                <select
-                                    name="slot"
-                                    value={formData.slot}
+                                <input
+                                    type="time"
+                                    name="startTime"
+                                    value={formData.startTime}
                                     onChange={handleChange}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors appearance-none"
-                                >
-                                    <option value="night" className="bg-gray-900">🌙 Night</option>
-                                    <option value="day" className="bg-gray-900">☀️ Day</option>
-                                </select>
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors [color-scheme:dark]"
+                                />
                             </div>
+                        </div>
+                    </div>
+
+                    {/* End Time - Full Width */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">End Time (Optional)</label>
+                        <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                            <input
+                                type="time"
+                                name="endTime"
+                                value={formData.endTime}
+                                onChange={handleChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors [color-scheme:dark]"
+                            />
                         </div>
                     </div>
 
