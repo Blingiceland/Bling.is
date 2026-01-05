@@ -1130,6 +1130,12 @@ const CreateVenue = () => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     console.log("Fetched Venue Data:", data); // Debugging
+
+                    // Auto-generate slug if missing
+                    if (!data.slug && data.name) {
+                        data.slug = generateSlug(data.name);
+                    }
+
                     setFormData(prev => ({ ...prev, ...data }));
 
                     // Auto-jump to Review (Step 5) for instant access
