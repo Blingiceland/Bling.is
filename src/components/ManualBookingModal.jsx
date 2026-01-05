@@ -14,6 +14,9 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
         endTime: '',
         message: '', // Description / Notes
         ticketSales: 'no',
+        artistImage: '',
+        socialLink: '',
+        musicLink: '',
     });
 
     if (!isOpen) return null;
@@ -54,6 +57,9 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                 message: formData.message || 'Manual Entry',
                 ticketSales: formData.ticketSales,
                 eventType: 'manual_entry',
+                artistImage: formData.artistImage || '',
+                socialLink: formData.socialLink || '',
+                musicLink: formData.musicLink || '',
                 createdAt: serverTimestamp()
             };
 
@@ -180,6 +186,49 @@ const ManualBookingModal = ({ isOpen, onClose, venues, currentUser, onBookingAdd
                             <option value="no" className="bg-gray-900">No (Free Entry / Private)</option>
                             <option value="yes" className="bg-gray-900">Yes (Ticketed)</option>
                         </select>
+                    </div>
+
+                    {/* Artist/Event Media (Optional) */}
+                    <div className="space-y-4 pt-4 border-t border-white/10">
+                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Event Media (Optional)</h3>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Artist/Event Image URL</label>
+                            <input
+                                type="url"
+                                name="artistImage"
+                                value={formData.artistImage}
+                                onChange={handleChange}
+                                placeholder="https://example.com/artist.jpg"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">Link to artist or event poster image</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Social Media</label>
+                                <input
+                                    type="url"
+                                    name="socialLink"
+                                    value={formData.socialLink}
+                                    onChange={handleChange}
+                                    placeholder="Instagram, Facebook..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Music Link</label>
+                                <input
+                                    type="url"
+                                    name="musicLink"
+                                    value={formData.musicLink}
+                                    onChange={handleChange}
+                                    placeholder="Spotify, SoundCloud..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#ffd700] focus:outline-none transition-colors"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Notes */}

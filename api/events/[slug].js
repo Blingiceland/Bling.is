@@ -82,6 +82,10 @@ export default async function handler(req, res) {
                     slot: data.slot || '',
                     ticketSales: data.ticketSales || 'no',
                     message: data.message || '',
+                    artistImage: data.artistImage || '',
+                    socialLink: data.socialLink || '',
+                    musicLink: data.musicLink || '',
+                    lineup: data.lineup || [],
                 };
             })
             // Filter out events without valid dates and sort by date
