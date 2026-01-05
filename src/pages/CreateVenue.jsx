@@ -9,6 +9,8 @@ import VenuePage from '../components/VenuePage';
 import { Trash2, Plus, Upload, X, Check, XCircle, MapPin, Loader2, ArrowLeft, ArrowRight, ExternalLink, Ticket, PartyPopper, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { ICELAND_REGIONS } from '../constants/locations';
 import { toast } from 'sonner';
+import { generateSlug, isSlugAvailable } from '../utils/slugify';
+
 
 // --- Sub-components (Defined OUTSIDE to prevent re-mount/focus loss) ---
 
@@ -626,6 +628,32 @@ const Step4_General = ({ formData, updateForm, handleLogoUpload, handleGalleryUp
                 placeholder="e.g. +354 123 4567"
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#ffd700]/50"
             />
+        </div>
+
+        <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-300">Custom URL (Optional)</label>
+            <div className="relative">
+                <input
+                    type="text"
+                    value={formData.slug || ''}
+                    onChange={e => {
+                        const slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '');
+                        updateForm('slug', slug);
+                    }}
+                    placeholder="e.g. dillon"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-[#ffd700]/50"
+                />
+            </div>
+            {formData.slug && (
+                <p className="text-xs text-[#ffd700] flex items-center gap-1">
+                    <span>✓</span> Your venue will be available at: <span className="font-mono">bling.is/{formData.slug}</span>
+                </p>
+            )}
+            {!formData.slug && formData.name && (
+                <p className="text-xs text-gray-500">
+                    Leave empty to auto-generate from venue name
+                </p>
+            )}
         </div>
 
         {formData.venueType === 'public' && (
@@ -1300,10 +1328,27 @@ const CreateVenue = () => {
                 }
             }
 
+            // Generate slug if not provided
+            let finalSlug = formData.slug;
+            if (!finalSlug && formData.name) {
+                finalSlug = generateSlug(formData.name);
+            }
+
+            // Check slug availability if provided
+            if (finalSlug) {
+                const available = await isSlugAvailable(finalSlug, db, editVenueId);
+                if (!available) {
+                    toast.error(`The URL "${finalSlug}" is already taken. Please choose another.`);
+                    setLoading(false);
+                    return;
+                }
+            }
+
             if (editVenueId) {
                 // --- UPDATE EXISTING ---
                 await updateDoc(doc(db, "venues", editVenueId), {
                     ...formData,
+                    slug: finalSlug,
                     updatedAt: serverTimestamp()
                 });
 
@@ -1316,6 +1361,7 @@ const CreateVenue = () => {
                 // --- CREATE NEW ---
                 const docRef = await addDoc(collection(db, "venues"), {
                     ...formData,
+                    slug: finalSlug,
                     ownerId: finalOwnerId,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),

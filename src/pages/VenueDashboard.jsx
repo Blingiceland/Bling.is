@@ -83,8 +83,10 @@ const VenueDashboard = () => {
         fetchDashboardData();
     }, [currentUser]);
 
-    const handleCopyLink = (venueId) => {
-        const url = `${window.location.origin}/v/${venueId}`;
+    const handleCopyLink = (venue) => {
+        const url = venue.slug
+            ? `${window.location.origin}/${venue.slug}`
+            : `${window.location.origin}/v/${venue.id}`;
         navigator.clipboard.writeText(url);
         toast.success("Public link copied to clipboard");
     };
@@ -174,26 +176,27 @@ const VenueDashboard = () => {
             <div className="min-h-screen pt-24 px-4 flex flex-col items-center justify-center max-w-5xl mx-auto">
                 <div className="text-center mb-12 animate-fade-in">
                     <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-[#ffd700] to-[#ffd700] mb-6">
-                        Welcome to Bling
+                        Velkomin í Bling
                     </h1>
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-                        How would you like to use the platform today?
+                        Skráðu þinn stað til að taka á móti bókunarbeiðnum
                     </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full animate-slide-up">
-                    <button onClick={() => navigate('/create-profile')} className="group relative p-8 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:-translate-y-2 text-left">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#ffd700]/0 to-[#ffd700]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
-                        <div className="w-16 h-16 rounded-2xl bg-[#ffd700]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><span className="text-4xl">🎤</span></div>
-                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#ffd700] transition-colors">Find a Stage</h3>
-                        <p className="text-gray-400">Create an Artist or Promoter profile to book gigs and manage specific events.</p>
-                    </button>
-                    <button onClick={() => navigate('/create-venue')} className="group relative p-8 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:-translate-y-2 text-left">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#ffd700]/0 to-[#ffd700]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
-                        <div className="w-16 h-16 rounded-2xl bg-[#ffd700]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><span className="text-4xl">✨</span></div>
-                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#ffd700] transition-colors">List Your Space</h3>
-                        <p className="text-gray-400">Register your venue to receive booking requests for concerts and private events.</p>
-                    </button>
-                </div>
+                <button
+                    onClick={() => navigate('/create-venue')}
+                    className="group relative p-8 rounded-3xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:-translate-y-2 text-center max-w-md w-full"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#ffd700]/0 to-[#ffd700]/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
+                    <div className="w-16 h-16 rounded-2xl bg-[#ffd700]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform mx-auto">
+                        <span className="text-4xl">✨</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#ffd700] transition-colors">
+                        Skráðu þinn stað
+                    </h3>
+                    <p className="text-gray-400">
+                        Taktu á móti bókunarbeiðnum fyrir tónleika og viðburði
+                    </p>
+                </button>
             </div>
         );
     }
@@ -386,7 +389,7 @@ const VenueDashboard = () => {
                             {/* Show quick copy link for the first venue if available */}
                             {venues.length > 0 && (
                                 <button
-                                    onClick={() => handleCopyLink(venues[0].id)}
+                                    onClick={() => handleCopyLink(venues[0])}
                                     className="flex items-center gap-2 px-4 py-2 bg-[#ffd700] hover:bg-[#ffd700]/90 text-black font-bold rounded-xl transition-all shadow-lg shadow-[#ffd700]/20"
                                 >
                                     <LinkIcon className="w-4 h-4" />
@@ -498,7 +501,7 @@ const VenueDashboard = () => {
                                     View
                                 </button>
                                 <button
-                                    onClick={() => handleCopyLink(venue.id)}
+                                    onClick={() => handleCopyLink(venue)}
                                     className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-colors"
                                     title="Copy Public Link"
                                 >

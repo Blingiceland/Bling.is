@@ -5,7 +5,7 @@ import BookingModal from './BookingModal';
 import { format } from 'date-fns';
 import { CONFIG } from '../config';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 
@@ -19,8 +19,8 @@ const formatPolicy = (value) => {
 };
 
 const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
-    const { id: paramVenueId } = useParams();
-    const venueId = propVenueId || paramVenueId;
+    const { id: paramVenueId, slug: paramSlug } = useParams();
+    const venueIdentifier = propVenueId || paramVenueId || paramSlug;
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
@@ -28,6 +28,7 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [venueData, setVenueData] = useState(null);
+    const [actualVenueId, setActualVenueId] = useState(null);
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,15 +67,30 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
                 return;
             }
 
-            // A. Firestore (SaaS Venues) - Check FIRST to ensure ownerId is loaded
+            // A. Firestore (SaaS Venues) - Try slug first, then ID
             try {
-                if (venueId) {
-                    const docRef = doc(db, "venues", venueId);
+                if (venueIdentifier) {
+                    // Try slug lookup first
+                    const slugQuery = query(collection(db, "venues"), where("slug", "==", venueIdentifier));
+                    const slugSnapshot = await getDocs(slugQuery);
+
+                    if (!slugSnapshot.empty) {
+                        const venueDoc = slugSnapshot.docs[0];
+                        const data = venueDoc.data();
+                        setVenueData(data);
+                        setActualVenueId(venueDoc.id);
+                        setLoading(false);
+                        return;
+                    }
+
+                    // Fall back to ID lookup
+                    const docRef = doc(db, "venues", venueIdentifier);
                     const docSnap = await getDoc(docRef);
 
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         setVenueData(data);
+                        setActualVenueId(venueIdentifier);
                         // If we have data, we are done
                         setLoading(false);
                         return;
@@ -85,12 +101,12 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
             }
 
             // B. Legacy/Demo (Fallback)
-            if (CONFIG.venues[venueId]) {
+            if (CONFIG.venues[venueIdentifier]) {
                 setVenueData({
-                    name: venueId === 'dillon' ? 'Dillon Whiskey Bar' : 'Demo Venue',
-                    ...CONFIG.venues[venueId]
+                    name: venueIdentifier === 'dillon' ? 'Dillon Whiskey Bar' : 'Demo Venue',
+                    ...CONFIG.venues[venueIdentifier]
                 });
-                fetchData(venueId);
+                fetchData(venueIdentifier);
                 return;
             }
 
@@ -100,7 +116,7 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
         };
 
         loadVenue();
-    }, [venueId, previewData]);
+    }, [venueIdentifier, previewData]);
 
     // Legacy date click handler - optional to keep or remove
     const handleDateClick = (date) => {
@@ -122,7 +138,7 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
         if (!window.confirm("Are you sure you want to delete this venue? This cannot be undone.")) return;
         setProvisioningLoading(true);
         try {
-            await deleteDoc(doc(db, "venues", venueId));
+            await deleteDoc(doc(db, "venues", actualVenueId || venueIdentifier));
             // Navigate to main landing or create venue, ensuring we don't trigger a "no venue -> logout" guard if one exists
             navigate('/create-venue');
         } catch (e) {
@@ -280,7 +296,7 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
                     </div>
                 )}
 
-                {!loading && (venueData?.sheetUrl || CONFIG.venues[venueId]) && (
+                {!loading && (venueData?.sheetUrl || CONFIG.venues[venueIdentifier]) && (
                     <div className="mt-12">
                         <h2 className="text-2xl font-bold text-white mb-6">Availability Calendar</h2>
                         <Calendar bookings={bookings} onDateClick={handleDateClick} />
@@ -291,7 +307,7 @@ const VenuePage = ({ venueId: propVenueId, onBack, previewData }) => {
             <BookingModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                venueId={venueId}
+                venueId={actualVenueId || venueIdentifier}
                 venueName={venueData?.name}
                 ownerId={venueData?.ownerId}
             />

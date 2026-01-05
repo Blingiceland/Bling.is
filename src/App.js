@@ -77,6 +77,8 @@ function App() {
               </Layout>
             } />
             <Route path="/v/:id" element={<VenueRoute />} />
+            {/* Slug-based route - must be last to avoid matching other routes */}
+            <Route path="/:slug" element={<VenueRoute />} />
           </Routes>
         </Router>
       </ToastProvider>
