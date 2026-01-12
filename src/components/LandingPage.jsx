@@ -3,6 +3,7 @@ import { Hero } from "./hero"
 import { LandingContent } from "./LandingContent"
 import { SubdomainPreview } from "./subdomain-preview"
 import { Header } from "./header"
+import { FeaturedVenues } from "./FeaturedVenues"
 
 export function LandingPage() {
     return (
@@ -10,6 +11,7 @@ export function LandingPage() {
             <Header />
             <Hero />
             <LandingContent />
+            <FeaturedVenues />
             <SubdomainPreview />
         </main>
     )
